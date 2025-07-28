@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d');
 const CANVAS_WIDTH = canvas.width = 800;
 const CANVAS_HEIGHT = canvas.height = 700; 
 let scrollSpeed = 7; 
-let globalFrameCount = 0; 
+//let globalFrameCount = 0; 
 
 // ** PARALLAX **
 const parallaxLayer1 = new Image(); 
@@ -16,6 +16,73 @@ parallaxLayer3.src = "fibonacci-mountain-bg-03.svg";
 const parallaxLayer4 = new Image(); 
 parallaxLayer4.src = "fibonacci-mountain-bg-04.svg"; 
 
+
+class Sprite {
+    constructor(options){
+        this.image = new Image(); 
+        this.image.src = options.src; 
+
+        this.spriteWidth = options.spriteWidth;
+        this.spriteHeight = options.spriteHeight; 
+        this.scale = options.scale || 1; 
+        this.x = options.x || 0; 
+        this.y = options.y || 0; 
+
+        this.states = options.states || ["default"]; 
+        this.currentState = options.startState || this.states[0]; 
+        this.frameY = this.states.indexOf(this.currentState); 
+        this.maxFrames = options.maxFrames || 8; 
+
+        this.frameX = 0; 
+        this.frameStaggerRate = options.frameStaggerRate || 5; 
+        this.frameCounter = 0; 
+    }
+    setState(state){
+        if (this.states.includes(state)){
+            this.currentState = state; 
+            this.frameY = this.state.indexOf(state); 
+            this.frameX = 0; 
+            this.frameCounter = 0; 
+        }
+    }
+    update(){
+        this.frameCounter++; 
+        if (this.frameCounter % this.frameStaggerRate === 0){
+            this.frameX = (this.frameX + 1) % (this.maxFrames + 1); 
+        }
+    }
+    draw(ctx){
+        ctx.drawImage(
+            this.image, 
+            this.frameX * this.spriteWidth, 
+            this.frameY * this.spriteHeight, 
+            this.spriteWidth, 
+            this.spriteHeight, 
+            this.x, 
+            this.y, 
+            this.spriteWidth * this.scale, 
+            this.spriteHeight * this.scale
+        );
+    }
+}
+
+// CREATE SNAIL SPRITE 
+const snail = new Sprite({
+    src: 'Snail-Sprite-002.svg', 
+    spriteWidth: 215,
+    spriteHeight: 120, 
+    x: 220, 
+    y: 20, 
+    scale: 1, 
+    frameStaggerRate: 5, 
+    maxFrames: 8, 
+    states: ['normal', 'curled', 'butterfly', 'ghost'], 
+    startState: 'normal'
+});
+
+
+/* old code:  */
+/* 
 // ** SPRITE **
 const snailSprite = new Image(); 
 snailSprite.src = 'Snail-Sprite-002.svg'; 
@@ -37,7 +104,12 @@ let currentSnailState = snailStates[0]; //starting off in normal mode
 canvas.addEventListener('click', () => {
     snailFrameY = snailFrameY === 0 ? 1 : 0; 
     snailFrameX = 0; 
-}); 
+});  */
+
+canvas.addEventListener('click', () => {
+    const nextIndex = (snail.states.indexOf(snail.currentState) + 1) % snail.states.length; 
+    snail.setState(snail.states[nextIndex]);
+})
 
 class Layer {
     constructor(image,speedModifier){
@@ -87,12 +159,12 @@ function animate(){
     ctx.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
 
     // slow down or speed up in walking (creeping) mode 
-    if (snailFrameY === 0){ //moving state 
+    if (snail.frameY === 0){ //moving state 
         // adjust tempo 
-        if (snailFrameX >= 3 && snailFrameX <= 6) { speedUpscrollSpeed(); }
+        if (snail.frameX >= 3 && snail.frameX <= 6) { speedUpscrollSpeed(); }
         else { slowDownscrollSpeed(); }
     } 
-    if (snailFrameY === 1) {
+    if (snail.frameY === 1) {
         stopscrollSpeed();
     }
     
@@ -120,15 +192,19 @@ function animate(){
     // ** SMALL SCALE SNAIL ** 
     //ctx.drawImage(snailSprite, snailFrameX*spriteWidth, 0, spriteWidth, spriteHeight, 220, 240, 400, CANVAS_HEIGHT);
     //this would be for spritesheet with columns and rows: 
-    ctx.drawImage(snailSprite, snailFrameX*spriteWidth, snailFrameY*spriteHeight, spriteWidth, spriteHeight, 220, 20, 400, CANVAS_HEIGHT);
+    //ctx.drawImage(snailSprite, snailFrameX*spriteWidth, snailFrameY*spriteHeight, spriteWidth, spriteHeight, 220, 20, 400, CANVAS_HEIGHT);
     
+    
+    snail.draw(ctx); 
+    snail.update(); 
+
     //reset globalFrameCount (sprite) after one cycle
-    if (globalFrameCount % frameStaggerRate === 0){
-        if (snailFrameX < 8) snailFrameX++; 
-        else snailFrameX = 0; 
-    }
+    /* if (globalFrameCount % snail.frameStaggerRate === 0){
+        if (snail.frameX < 8) snail.frameX++; 
+        else snail.frameX = 0; 
+    } */
     
-    globalFrameCount++;
+    //snail.frameCounter++;
 
     requestAnimationFrame(animate);
 }
