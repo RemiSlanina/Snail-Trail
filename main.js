@@ -38,10 +38,16 @@ class Sprite {
         this.frameStaggerRate = options.frameStaggerRate || 5; 
         this.frameCounter = 0; 
     }
+    slowDown(){
+        if (this.frameStaggerRate < 20) this.frameStaggerRate++; 
+    }
+    speedUp(){
+        if (this.frameStaggerRate > 0) this.frameStaggerRate--; 
+    }
     setState(state){
         if (this.states.includes(state)){
             this.currentState = state; 
-            this.frameY = this.state.indexOf(state); 
+            this.frameY = this.states.indexOf(state); 
             this.frameX = 0; 
             this.frameCounter = 0; 
         }
@@ -72,8 +78,8 @@ const snail = new Sprite({
     src: 'Snail-Sprite-002.svg', 
     spriteWidth: 215,
     spriteHeight: 120, 
-    x: 220, 
-    y: 20, 
+    x: Math.floor((CANVAS_WIDTH/2) - 215/2), 
+    y: CANVAS_HEIGHT-120, 
     scale: 1, 
     frameStaggerRate: 5, 
     maxFrames: 8, 
@@ -110,6 +116,8 @@ canvas.addEventListener('click', () => {
 canvas.addEventListener('click', () => {
     const nextIndex = (snail.states.indexOf(snail.currentState) + 1) % snail.states.length; 
     snail.setState(snail.states[nextIndex]);
+    console.log('Changed state to:', snail.currentState);
+    
 })
 
 class Layer {
@@ -168,7 +176,31 @@ function animate(){
     if (snail.frameY === 1) {
         stopscrollSpeed();
     }
-    
+    // slow down certain parts of the curl animation
+    if (snail.currentState === 'curled'){
+        if (snail.frameX === 4) {
+            snail.slowDown(); 
+        }
+        if (snail.frameX === 5) {
+            //snail.slowDown(); 
+            //snail.slowDown();
+        }
+        if (snail.frameX === 6) {
+            snail.speedUp();  
+            //snail.speedUp(); 
+            /* snail.speedUp();  */
+        }
+        if (snail.frameX === 7) {
+            //snail.slowDown(); 
+            snail.slowDown();
+            snail.slowDown();
+            snail.slowDown();
+        }
+        if (snail.frameX === 8){
+            //reset frameStaggerRate in the last frame to normal speed again
+            snail.frameStaggerRate = 5;
+        }
+    }
     
     /*  
      stopscrollSpeed();
@@ -197,7 +229,10 @@ function animate(){
     
     
     snail.draw(ctx); 
-    snail.update(); 
+    // snail only curles up once: 
+    // if not in the last frame of curl animation, it updates: 
+    //if (!(snail.frameY === 1 && snail.frameX === 8)) snail.update(); 
+    if (!(snail.currentState === "curled" && snail.frameX === 8)) snail.update(); 
 
     //reset globalFrameCount (sprite) after one cycle
     /* if (globalFrameCount % snail.frameStaggerRate === 0){
