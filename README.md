@@ -1,4 +1,4 @@
 # Snail Trail
 
-## Snail moving through parallax landscape
-Parallax demo written in plain JavaScript and svg
+## Little ghost snail moving through a parallax landscape
+Parallax demo written in plain JavaScript and svg 
