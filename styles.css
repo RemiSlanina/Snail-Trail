@@ -1,6 +1,6 @@
 body {
     background: hsl(0, 0%, 73%); 
-    /* color: white; */
+    color:  hsl(98, 13%, 13%);
 }
 #container {
     position: absolute;

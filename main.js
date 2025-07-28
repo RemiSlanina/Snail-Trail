@@ -27,16 +27,6 @@ let frameX = 0;
 const staggerFrames = 5;
 
 
-/* const slider = document.getElementById('slider'); 
-slider.value = gameSpeed; 
-const showGameSpeed = document.getElementById('showGameSpeed');
-showGameSpeed.innerHTML = gameSpeed; 
-slider.addEventListener('change', function(e){
-    //console.log(e.target.value); 
-    gameSpeed = e.target.value;
-    showGameSpeed.innerHTML = gameSpeed; 
-})  */ 
-
 class Layer {
     constructor(image,speedModifier){
         this.x = 0; 
@@ -62,20 +52,38 @@ class Layer {
     }
 }
 
+// ** PARALLAX **
 const layer1 = new Layer(backgroundLayer1, 0.2);
 const layer2 = new Layer(backgroundLayer2, 0.4);
 const layer3 = new Layer(backgroundLayer3, 0.6);
 const layer4 = new Layer(backgroundLayer4, 0.8); 
 
-const gameObjects = [layer1, layer2, layer3, layer4];
+const backgroundLayers = [layer1, layer2, layer3, layer4];
+
+    //slow down the parallax background
+function slowDownGameSpeed(){
+    if (gameSpeed > 0) gameSpeed--; 
+}
+function speedUpGameSpeed(){
+    if (gameSpeed < 7) gameSpeed++;
+}
+function stopGameSpeed(){
+    gameSpeed=0;
+}
 
 function animate(){
     ctx.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
-    gameObjects.forEach(object => {
+
+        if (frameX >= 3 && frameX <= 6) { speedUpGameSpeed(); }
+        else { slowDownGameSpeed(); }
+        /*  
+         stopGameSpeed();
+         */
+
+    backgroundLayers.forEach(object => {
         object.update();
         object.draw();
     }); 
-    //gameFrame--;
 
     //ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     //ctx.fillRect(100,50,100,100);
