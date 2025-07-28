@@ -176,7 +176,8 @@ function animate(){
     if (snail.frameY === 1) {
         stopscrollSpeed();
     }
-    // slow down certain parts of the curl animation
+    // slow down certain parts of the curl animation 
+    // play around a bit with timing the shell 
     if (snail.currentState === 'curled'){
         if (snail.frameX === 4) {
             snail.slowDown(); 
