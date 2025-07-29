@@ -1,5 +1,9 @@
 /** @type {HTMLCanvasElement} */ 
 // TO-DO: delete unnecessary comments 
+/* check for crashing due to canvas: 
+if (isFinite(this.x) && isFinite(this.y)) {
+    ctx.drawImage( ... );
+} */
 const canvas = document.getElementById('canvas1'); 
 const ctx = canvas.getContext('2d'); 
 const CANVAS_WIDTH = canvas.width = 800;
@@ -73,20 +77,72 @@ class Sprite {
     }
 }
 
-// CREATE SNAIL SPRITE 
+// CREATE SPRITES 
 const snail = new Sprite({
-    src: 'Snail-Sprite-002.svg', 
+    src: 'snail-sprite-002.svg', 
     spriteWidth: 215,
     spriteHeight: 120, 
     x: Math.floor((CANVAS_WIDTH/2) - 215/2), 
     y: CANVAS_HEIGHT-120, 
     scale: 1, 
     frameStaggerRate: 5, 
-    maxFrames: 8, 
+    maxFrames: 8, //actually 0-8
     states: ['normal', 'curled', 'butterfly', 'ghost'], 
     startState: 'normal'
 });
+const butterfly = new Sprite({
+    src: 'butterfly-sprite-01.svg',
+    spriteWidth: 100, 
+    spriteHeight: 80,
+    x: Math.floor((CANVAS_WIDTH/2) - 100/2),
+    y: CANVAS_HEIGHT/2,
+    scale: 0.7, 
+    frameStaggerRate: 5, 
+    maxFrames: 6, //acutally 0-6 
+    states: ['white', 'black', 'color'], 
+    startState: 'white'
+}); 
 
+// BUTTERFLY SWARMS 
+/* const swarm = []; 
+function createSwarm(number, spriteStates){
+    for (let i = 0; i < number; i++){
+    
+    swarm.push(new Sprite({
+    src: 'butterfly-sprite-01.svg',
+    spriteWidth: 100, 
+    spriteHeight: 80,
+    x: Math.floor((CANVAS_WIDTH/2) - 100/2),
+    y: CANVAS_HEIGHT/2,
+    scale: 0.7, 
+    frameStaggerRate: 5, 
+    maxFrames: 6, //acutally 0-6 
+    states: ['white', 'black', 'color'], 
+    startState: states[i%spriteStates.length] 
+    }));
+}
+} 
+createSwarm(21, butterfly.states); 
+*/
+const swarm = [];
+for (let i = 0; i < 20; i++) {
+
+    let xb = Math.floor(Math.random()*(CANVAS_WIDTH-100));
+    let yb = Math.floor(Math.random()*CANVAS_HEIGHT-80);
+
+  swarm.push(new Sprite({
+    src: 'butterfly-sprite-01.svg',
+    spriteWidth: 100, 
+    spriteHeight: 80,
+    x: xb,
+    y: yb,
+    scale: 0.7, 
+    frameStaggerRate: 5, 
+    maxFrames: 6, //acutally 0-6 
+    states: ['white', 'black', 'color'], 
+    startState: 'white'
+  })); 
+}
 
 /* old code:  */
 /* 
@@ -240,6 +296,14 @@ function animate(){
         if (snail.frameX < 8) snail.frameX++; 
         else snail.frameX = 0; 
     } */
+
+    butterfly.draw(ctx); 
+    butterfly.update(); 
+
+    swarm.forEach(b => {
+        b.draw(ctx); 
+        b.update(); 
+    })
     
     //snail.frameCounter++;
 

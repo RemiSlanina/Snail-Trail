@@ -2,13 +2,13 @@ body {
     background: hsl(0, 0%, 73%); 
     color:  hsl(98, 13%, 13%);
 }
-#container {
+#snail-trail {
     position: absolute;
     transform: translate(-50%, -50%);
     top: 50%;
     left: 50%;
 } 
-#container p {
+#snail-trail p {
     font-family: 'Dosis', sans-serif;
     text-align: center;
     font-size: 1.6rem;
