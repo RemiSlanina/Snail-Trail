@@ -21,9 +21,11 @@ if (isFinite(this.x) && isFinite(this.y)) {
 */
 const canvas = document.getElementById("canvas1");
 const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
+canvas.style.imageRendering = "crisp-edges";
 let canvasWidth;
 let canvasHeight;
-let scrollSpeed = 2;
+let scrollSpeed = 12;
 //let globalFrameCount = 0;
 
 // ** SPRITES **
@@ -80,6 +82,19 @@ class Sprite {
       this.spriteHeight * this.scale
     );
   }
+  drawCrispImage(ctx) {
+    ctx.drawImage(
+      this.image,
+      Math.floor(this.frameX * this.spriteWidth),
+      Math.floor(this.frameY * this.spriteHeight),
+      this.spriteWidth,
+      this.spriteHeight,
+      Math.floor(this.x),
+      Math.floor(this.y),
+      Math.floor(this.spriteWidth * this.scale),
+      Math.floor(this.spriteHeight * this.scale)
+    );
+  }
 }
 
 // detect colliding sprites
@@ -93,9 +108,9 @@ function isOverlapping(x, y, width, height, others) {
 const snail = new Sprite({
   src: "snail-sprite-002.svg",
   spriteWidth: 215,
-  spriteHeight: 120,
+  spriteHeight: 130,
   x: Math.floor(canvasWidth / 2 - 215 / 2),
-  y: canvasHeight - 120,
+  y: canvasHeight - 130,
   scale: 1,
   frameStaggerRate: 5,
   maxFrames: 8, //actually 0-8
@@ -147,12 +162,6 @@ function createSwarm(num, ...colors) {
 }
 const swarm = createSwarm(10, "white", "black", "color");
 
-/* function createSwarm(num, ...args){
-    
-    return swarm; 
-}
- */
-// change snail state on click here
 canvas.addEventListener("click", () => {
   const nextIndex =
     (snail.states.indexOf(snail.currentState) + 1) % snail.states.length;
@@ -188,10 +197,13 @@ class Layer {
   }
   update() {
     this.speed = scrollSpeed * this.speedModifier;
-    if (this.x <= -this.getTargetWidth()) {
-      this.x = 0;
+    this.x -= this.speed;
+    const targetWidth = this.getTargetWidth();
+
+    if (this.x <= -targetWidth) {
+      this.x += targetWidth;
     }
-    this.x = Math.floor(this.x - this.speed);
+    //this.x = this.x - this.speed;
     // instead ( w/ globalFrameCount):
     //this.x = globalFrameCount *this.speed % this.width;
   }
@@ -200,14 +212,31 @@ class Layer {
     const targetHeight = canvasHeight;
     const targetWidth = this.image.width * heightRatio;
 
-    ctx.drawImage(this.image, this.x, this.y, targetWidth, targetHeight);
-    ctx.drawImage(
+    for (let i = -1; i <= 1; i++) {
+      ctx.drawImage(
+        this.image,
+        Math.floor(this.x + i * targetWidth),
+        this.y,
+        Math.floor(targetWidth),
+        targetHeight
+      );
+    }
+    /*   
+  ctx.drawImage(
       this.image,
-      this.x + targetWidth,
+      Math.floor(this.x),
       this.y,
-      targetWidth,
+      Math.floor(targetWidth),
       targetHeight
     );
+    ctx.drawImage(
+      this.image,
+      Math.floor(this.x + targetWidth),
+      this.y,
+      Math.floor(targetWidth),
+      targetHeight
+    );
+     */
   }
 }
 
@@ -351,7 +380,7 @@ function animate() {
     object.draw();
   });
 
-  snail.draw(ctx);
+  snail.drawCrispImage(ctx);
   // snail only curles up once:
   // if not in the last frame of curl animation, it updates:
   //if (!(snail.frameY === 1 && snail.frameX === 8)) snail.update();
@@ -360,11 +389,17 @@ function animate() {
   butterfly.draw(ctx);
   butterfly.update();
 
-  swarm.forEach((b) => {
-    b.draw(ctx);
-    b.update();
-  });
-
+  if (snail.currentState == "curled") {
+    //console.log("CURLED!");
+    swarm.forEach((b) => {
+      b.draw(ctx);
+      b.update();
+    });
+  }
+  /* debug */
+  ctx.fillStyle = "red";
+  ctx.fillRect(0, canvasHeight - 1, canvasWidth, 1); // bottom red line
+  /* debug */
   requestAnimationFrame(animate);
 }
 animate();
