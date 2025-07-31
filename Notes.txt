@@ -8,4 +8,6 @@
 186,726 - 62,112 = 124,614
 
 
-215 x 120 px Snail 
+215 x 130 px Snail 
+
+100 x 80 px Butterfly 
