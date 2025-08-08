@@ -12,15 +12,15 @@ export class Layer {
     this.image = image;
     this.speedModifier = speedModifier;
     this.speed = config.scrollSpeed * this.speedModifier;
-    this.getTargetWidth = () => {
-      const heightRatio = canvasHeight / this.image.height;
+    this.getTargetWidth = (currentCanvasHeight) => {
+      const heightRatio = currentCanvasHeight / this.image.height;
       return this.image.width * heightRatio;
     };
   }
-  update() {
+  update(currentCanvasHeight) {
     this.speed = config.scrollSpeed * this.speedModifier;
     this.x -= this.speed;
-    const targetWidth = this.getTargetWidth();
+    const targetWidth = this.getTargetWidth(currentCanvasHeight);
 
     if (this.x <= -targetWidth) {
       this.x += targetWidth;
@@ -29,9 +29,9 @@ export class Layer {
     // instead ( w/ globalFrameCount):
     //this.x = globalFrameCount *this.speed % this.width;
   }
-  draw(canvasHeight, ctx) {
-    const heightRatio = canvasHeight / this.image.height;
-    const targetHeight = canvasHeight;
+  draw(currentCanvasHeight, ctx) {
+    const heightRatio = currentCanvasHeight / this.image.height;
+    const targetHeight = currentCanvasHeight;
     const targetWidth = this.image.width * heightRatio;
 
     for (let i = -1; i <= 1; i++) {

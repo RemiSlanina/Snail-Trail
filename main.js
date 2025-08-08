@@ -16,7 +16,7 @@ if (isFinite(this.x) && isFinite(this.y)) {
 } */
 
 // TO DO
-
+// detect colliding sprites
 /*  I got a white line over curled Animation after resizing
     now only left in firefox 
     Something's not right! */
@@ -38,8 +38,6 @@ ctx.imageSmoothingEnabled = false;
 canvas.style.imageRendering = "crisp-edges";
 let canvasWidth;
 let canvasHeight;
-
-// detect colliding sprites
 
 // ********************** CREATE SPRITES **********************
 const snail = new Sprite({
@@ -145,35 +143,13 @@ function resizeCanvas() {
     snail.x = Math.floor(
       canvasWidth / 2 - (snail.spriteWidth * snail.scale) / 2
     );
-    //console.log("canvasHeight =", canvasHeight);
-    //console.log(`snail.y before: ${snail.y}`);
+
     snail.y = canvasHeight - snail.spriteHeight * snail.scale;
-    /* 
-    console.log(
-      `resize y: canvasHeight: ${canvasHeight} + snail.spriteHeight: ${snail.spriteHeight} 
-        + snail.scale: ${snail.scale} + snail.y : ${snail.y} `
-    );
-     */
-    /* snail.y = canvasHeight - snail.spriteHeight * snail.scale; */
   }
 
-  //check properties:
-  /*  if (snail?.spriteWidth && snail?.scale) {
-            snail.x = Math.floor((canvasWidth / 2) - (snail.spriteWidth * snail.scale) / 2);
-        } */
-
-  // I'd have to do it for the swarm, too, and maybe make some method
-  //snail.x = Math.floor((canvasWidth / 2) - (snail.spriteWidth * snail.scale) / 2);
-  //snail.y = canvasHeight - snail.spriteHeight * snail.scale;
   if (typeof butterfly !== "undefined" && butterfly !== null) {
     butterfly.x = snail.x + (snail.spriteWidth * snail.scale) / 2 - 130;
     butterfly.y = snail.y + (Math.random() - 0.5) * 20;
-
-    //static butterfly in the middle:
-    /*     butterfly.x = Math.floor(
-      canvasWidth / 2 - (butterfly.spriteWidth * butterfly.scale) / 2
-    );
-    butterfly.y = canvasHeight / 2; */
   }
 
   // insert swarm class maybe tomorrow ...? Let the swarm manage itself
@@ -182,10 +158,6 @@ function resizeCanvas() {
   if (swarm && Array.isArray(swarm)) {
     swarm.forEach((b, i) => {
       //scatter butterflies randomly
-      /* 
-      b.x = Math.random() * canvasWidth;
-      b.y = Math.random() * canvasHeight * 0.6;
-       */
 
       b.x =
         snail.x +
@@ -248,7 +220,7 @@ function animate() {
      */
 
   parallaxLayers.forEach((object) => {
-    object.update();
+    object.update(canvasHeight);
     object.draw(canvasHeight, ctx);
   });
 
@@ -264,6 +236,7 @@ function animate() {
     butterfly.update();
   } */
 
+  // ** SPAWN BUTTERFLIES AFTER 2 SECONDS **
   if (snail.currentState == "shaking") {
     if (!config.shakingTimeStart) {
       config.shakingTimeStart = Date.now();
@@ -310,5 +283,5 @@ function animate() {
 resizeCanvas();
 console.log(`Snail at x=${snail.x}, canvasWidth=${canvasWidth}`);
 // ** LATER RESIZES OF WINDOW **
-window.addEventListener("resize", resizeCanvas());
+window.addEventListener("resize", resizeCanvas);
 animate();
