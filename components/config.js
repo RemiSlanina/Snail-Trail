@@ -1,5 +1,5 @@
 export const config = {
-  scrollSpeed: 100,
+  scrollSpeed: 1,
   maxScrollSpeed: 10,
   // globalFrameCount = 0,
   butterfliesSpawned: false,
