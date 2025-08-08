@@ -1,4 +1,4 @@
-import { Sprite } from "./Sprite.js";
+import { Sprite } from "./sprite.js";
 import { config } from "./config.js";
 
 export function isOverlapping(x, y, width, height, others) {
@@ -23,7 +23,7 @@ export function createSwarm(num, ...colors) {
 
     bswarm.push(
       new Sprite({
-        src: "butterfly-sprite-01.svg",
+        src: "./assets/sprites/Butterfly-Sprite-01.svg",
         spriteWidth: 100,
         spriteHeight: 80,
         x: xb,
@@ -31,6 +31,7 @@ export function createSwarm(num, ...colors) {
         scale: 0.7,
         frameStaggerRate: 11,
         maxFrames: 6, //acutally 0-6
+        stateFrames: [6, 6, 6],
         states: ["white", "black", "color"],
         startState: color,
         flutter: true,
@@ -58,7 +59,7 @@ export function spawnButterflySwarmFromShell(
 
     bswarm.push(
       new Sprite({
-        src: "butterfly-sprite-01.svg",
+        src: "./assets/sprites/Butterfly-Sprite-01.svg",
         spriteWidth: 100,
         spriteHeight: 80,
         x: shellX / 2 + offsetX - 30,
@@ -66,6 +67,7 @@ export function spawnButterflySwarmFromShell(
         scale: size,
         frameStaggerRate: 15,
         maxFrames: 6,
+        stateFrames: [6, 6, 6],
         states: ["white", "black", "color"],
         startState: color,
         flutter: true,

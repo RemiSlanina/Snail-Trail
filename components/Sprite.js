@@ -22,6 +22,7 @@ export class Sprite {
     this.currentState = options.startState || this.states[0];
     this.frameY = this.states.indexOf(this.currentState);
     this.maxFrames = options.maxFrames || 8;
+    this.stateFrames = options.stateFrames || [8, 6, 6];
 
     this.frameX = 0;
     this.frameStaggerRate = options.frameStaggerRate || 5;
@@ -57,6 +58,7 @@ export class Sprite {
       this.frameY = this.states.indexOf(state);
       this.frameX = 0;
       this.frameCounter = 0;
+      this.maxFrames = this.stateFrames[this.states.indexOf(state)];
     }
   }
   update(deltaTime) {

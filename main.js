@@ -1,15 +1,15 @@
 /** @type {HTMLCanvasElement} */
-import { config } from "./components/config.js";
-import { Sprite } from "./components/Sprite.js";
-import { Layer } from "./components/Layer.js";
+import { Sprite } from "./components/sprite.js";
+import { Layer } from "./components/layer.js";
 import { isOverlapping } from "./components/utils.js";
 import { createSwarm } from "./components/utils.js";
+import { config } from "./components/config.js";
 import { spawnButterflySwarmFromShell } from "./components/utils.js";
 import { slowDownscrollSpeed } from "./components/utils.js";
 import { speedUpscrollSpeed } from "./components/utils.js";
 import { stopscrollSpeed } from "./components/utils.js";
 
-// TO-DO: delete unnecessary comments
+// TO-DO: remove unnecessary comments
 /* check for crashing due to canvas: 
 if (isFinite(this.x) && isFinite(this.y)) {
     ctx.drawImage( ... );
@@ -17,8 +17,8 @@ if (isFinite(this.x) && isFinite(this.y)) {
 
 // TO DO
 
-/* I got a white line over curled Animation after resizing
-   now only left in firefox 
+/*  I got a white line over curled Animation after resizing
+    now only left in firefox 
     Something's not right! */
 /* 
     Flutter toward light
@@ -30,6 +30,8 @@ if (isFinite(this.x) && isFinite(this.y)) {
     Fix swarm overlapping logic?
     Animate butterfly swarm reacting to tap / touch?
 */
+
+// ********************** CREATE CONSTANTS **********************
 const canvas = document.getElementById("canvas1");
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
@@ -39,9 +41,9 @@ let canvasHeight;
 
 // detect colliding sprites
 
-/* create some sprites */
+// ********************** CREATE SPRITES **********************
 const snail = new Sprite({
-  src: "snail-sprite-002.svg",
+  src: "./assets/sprites/Snail-Sprite-002.svg",
   spriteWidth: 215,
   spriteHeight: 130,
   x: Math.floor(canvasWidth / 2 - 215 / 2),
@@ -49,12 +51,13 @@ const snail = new Sprite({
   scale: 1,
   frameStaggerRate: 6,
   maxFrames: 8, //actually 0-8
-  states: ["normal", "curled", "butterfly", "ghost"],
+  stateFrames: [8, 8, 8, 0], // 0-8 or 0
+  states: ["normal", "curled", "shaking", "standing"],
   startState: "normal",
 });
 
 const butterfly = new Sprite({
-  src: "butterfly-sprite-01.svg",
+  src: "./assets/sprites/Butterfly-Sprite-01.svg",
   spriteWidth: 100,
   spriteHeight: 80,
   x: Math.floor(canvasWidth / 2 - 100 / 2),
@@ -62,6 +65,7 @@ const butterfly = new Sprite({
   scale: 3,
   frameStaggerRate: 1,
   maxFrames: 6, //acutally 0-6
+  stateFrames: [6, 6, 6], // 0-6
   states: ["white", "black", "color"],
   startState: "white",
   flutter: true,
@@ -85,6 +89,7 @@ const swarm = spawnButterflySwarmFromShell(
 
 //const snailButterfly = spawnButterflySwarmFromShell(snail.x, snail.y, 1, 1);
 
+// ********************** ADD EVENT LISTENER **********************
 canvas.addEventListener("click", () => {
   const nextIndex =
     (snail.states.indexOf(snail.currentState) + 1) % snail.states.length;
@@ -92,38 +97,28 @@ canvas.addEventListener("click", () => {
   console.log("Changed state to:", snail.currentState);
 });
 
-// ** PARALLAX **
+// ********************** CREATE PARALLAX **********************
 const parallaxLayer1 = new Image();
-parallaxLayer1.src = "fibonacci-mountain-bg-01.svg";
+parallaxLayer1.src = "./assets/layers/BG-Hills-Big.svg";
 const parallaxLayer2 = new Image();
-parallaxLayer2.src = "fibonacci-mountain-bg-02.svg";
+parallaxLayer2.src = "./assets/layers/BG-Clouds.svg";
 const parallaxLayer3 = new Image();
-parallaxLayer3.src = "fibonacci-mountain-bg-03.svg";
+parallaxLayer3.src = "./assets/layers/BG-Hills-Small.svg";
 const parallaxLayer4 = new Image();
-parallaxLayer4.src = "fibonacci-mountain-bg-04.svg";
-const nonParallaxLayer1 = new Image();
-nonParallaxLayer1.src = "fibonacci-bg-non-parallax.svg";
+parallaxLayer4.src = "./assets/layers/BG-Trees.svg";
+const ParallaxLayer5 = new Image();
+ParallaxLayer5.src = "./assets/layers/BG-Path.svg";
 
 // ** PARALLAX **
 const pLayer1 = new Layer(parallaxLayer1, 0.25, canvasHeight);
 const pLayer2 = new Layer(parallaxLayer2, 0.3, canvasHeight);
 const pLayer3 = new Layer(parallaxLayer3, 0.35, canvasHeight);
 const pLayer4 = new Layer(parallaxLayer4, 0.4, canvasHeight);
-const npLayer1 = new Layer(nonParallaxLayer1, 0, canvasHeight);
+const pLayer5 = new Layer(ParallaxLayer5, 0.5, canvasHeight);
 
-const parallaxLayers = [pLayer1, pLayer2, pLayer3, pLayer4, npLayer1];
+const parallaxLayers = [pLayer1, pLayer2, pLayer3, pLayer4, pLayer5];
 
-//slow down the parallax background
-/* function slowDownscrollSpeed() {
-  if (scrollSpeed > 0) scrollSpeed--;
-}
-function speedUpscrollSpeed(scrollSpeed) {
-  if (scrollSpeed < 7) scrollSpeed++;
-}
-function stopscrollSpeed() {
-  scrollSpeed = 0;
-} */
-
+// ********************** RESIZE CANVAS **********************
 // resize pixel and dimensions of the canvas
 // call once at the beginning, too
 // scale dynamically
@@ -202,10 +197,7 @@ function resizeCanvas() {
   }
 }
 
-resizeCanvas();
-console.log(`Snail at x=${snail.x}, canvasWidth=${canvasWidth}`);
-// if user resizes window:
-window.addEventListener("resize", resizeCanvas());
+// ********************** ANIMATE **********************
 
 function animate() {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -266,13 +258,36 @@ function animate() {
   //if (!(snail.frameY === 1 && snail.frameX === 8)) snail.update();
   if (!(snail.currentState === "curled" && snail.frameX === 8)) snail.update();
 
-  if (snail.currentState === "butterfly") {
+  /* 
+  if (snail.currentState === "shaking") {
     butterfly.draw(ctx);
     butterfly.update();
+  } */
+
+  if (snail.currentState == "shaking") {
+    if (!config.shakingTimeStart) {
+      config.shakingTimeStart = Date.now();
+    }
+
+    const elapsed = Date.now() - config.shakingTimeStart;
+
+    if (elapsed > 2000 && !config.butterfliesSpawned) {
+      //draw swarm
+      //console.log("swarm");
+      swarm.forEach((b) => {
+        b.draw(ctx);
+        b.update();
+      });
+      config.butterfliesSpawned = true;
+      snail.setState("standing");
+    }
+  } else {
+    // Reset if snail enters another state
+    config.shakingTimeStart = null;
+    config.butterfliesSpawned = false;
   }
 
-  if (snail.currentState == "curled") {
-    //console.log("CURLED!");
+  if (snail.currentState == "standing") {
     swarm.forEach((b) => {
       b.draw(ctx);
       b.update();
@@ -289,4 +304,11 @@ function animate() {
   /* debug */
   requestAnimationFrame(animate);
 }
+
+// ********************** EXECUTE **********************
+// ** INITIAL RESIZE **
+resizeCanvas();
+console.log(`Snail at x=${snail.x}, canvasWidth=${canvasWidth}`);
+// ** LATER RESIZES OF WINDOW **
+window.addEventListener("resize", resizeCanvas());
 animate();
